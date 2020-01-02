@@ -1,6 +1,7 @@
+import { DbURL } from './models/url.model';
 import { URL } from './models/url.model';
-import { User } from './models/user.model';
-import { MongoClient, Collection, Db, MongoError, InsertOneWriteOpResult } from 'mongodb';
+import { User, DbUser } from './models/user.model';
+import { MongoClient, Collection, Db, MongoError, InsertOneWriteOpResult, ObjectId } from 'mongodb';
 
 export class Dao {
 
@@ -33,7 +34,7 @@ export class Dao {
         return this.connect()
             .then((db: Db) => {
                 return db.collection('urls').findOne({ url })
-                    .then((urlDocument: URL) => {
+                    .then((urlDocument: DbURL) => {
                         if (urlDocument === null) {
                             return db.collection('urls').insertOne({ url })
                                 .then((result: InsertOneWriteOpResult<any>) => {
@@ -41,16 +42,16 @@ export class Dao {
                                 });
                         }
 
-                        return urlDocument.id;
+                        return urlDocument._id;
                     })
                     .then((urlId: string) => {
                         return db.collection('users')
-                            .update(
-                                { userId },
+                            .updateOne(
+                                { _id: new ObjectId(userId) },
                                 { $addToSet: { urlIds: urlId } })
-                                .then(() => {
-                                    return urlId;
-                                });
+                            .then(() => {
+                                return urlId;
+                            });
                     });
             });
     }
@@ -58,11 +59,21 @@ export class Dao {
     getUrlsByUserId(userId: string): Promise<URL[]> {
         return this.connect()
             .then((db: Db) => {
-                return db.collection('users').findOne({ _id: userId })
-                    .then((user: User) => {
-                        return db.collection('urls')
-                            .find(user.urls.map(url => url.id))
-                            .toArray();
+                return db.collection('users').findOne({ _id: new ObjectId(userId) })
+                    .then((user: DbUser) => {
+                        return user.urlIds && user.urlIds.length ?
+                            db.collection('urls')
+                                .find({_id: {$in: user.urlIds}})
+                                .toArray() :
+                            new Promise((resolve) => resolve([]));
+                    })
+                    .then((urls: DbURL[]) => {
+                        return urls.map(urlDoc => {
+                            return {
+                                url: urlDoc.url,
+                                id: urlDoc._id
+                            };
+                        });
                     });
             });
     }

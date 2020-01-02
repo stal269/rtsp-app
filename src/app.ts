@@ -26,7 +26,6 @@ class App {
                 keys: ['encrypt', 'decrypt'],
                 maxAge: 1000 * 60 * 30
             }))
-            .use('/', express.static(path.join(__dirname, '../', 'frontend', 'dist')))
             .use(bodyParser.json())
             .post('/rtsp/users',
                 this.encryptPassword.bind(this),
@@ -36,6 +35,7 @@ class App {
             //consider putting next two under the same route
             .post('/rtsp/users/:id/urls', this.addUrlToUser.bind(this))
             .get('/rtsp/users/:id/urls', this.getUrlsByUserId.bind(this))
+            .use('/**', this.handleStaticRequest.bind(this));
     }
 
     private createUser(request: Request, response: Response): void {
@@ -91,7 +91,7 @@ class App {
     };
 
     private addUrlToUser(request: Request, response: Response): void {
-        this.dao.setUrlForUser(request.params.userId, request.body.url)
+        this.dao.setUrlForUser(request.params.id, request.body.url)
             .then((urlId: string) => {
                 response.status(200)
                     .json({ id: urlId });
@@ -99,11 +99,25 @@ class App {
     }
 
     private getUrlsByUserId(request: Request, response: Response): void {
-        this.dao.getUrlsByUserId(request.params.userId)
+        this.dao.getUrlsByUserId(request.params.id)
             .then((urls: URL[]) => {
                 response.status(200)
-                    .json({urls});
+                    .json({ urls });
             });
+    }
+
+    private handleStaticRequest(request: Request, response: Response): void {
+        const url = request.baseUrl;
+                const urlParts = url.split('/');
+                const distPath = path.join(__dirname, '../', 'frontend', 'dist');
+
+                if (url === '/' || !url.length || !urlParts[1].includes('.')) {
+                    response.sendFile(distPath + '/index.html');
+
+                    return;
+                }
+
+                response.sendFile(distPath + `/${urlParts[1]}`);
     }
 
 }
