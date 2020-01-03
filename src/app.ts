@@ -41,6 +41,7 @@ class App {
     private createUser(request: Request, response: Response): void {
         this.dao.createUser(request.body)
             .then((id: string) => {
+                console.log(`user with id: ${id} created`)
                 response.status(200)
                     .json({ id });
             })
@@ -108,16 +109,16 @@ class App {
 
     private handleStaticRequest(request: Request, response: Response): void {
         const url = request.baseUrl;
-                const urlParts = url.split('/');
-                const distPath = path.join(__dirname, '../', 'frontend', 'dist');
+        const urlParts = url.split('/');
+        const distPath = path.join(__dirname, '../', 'frontend', 'dist');
 
-                if (url === '/' || !url.length || !urlParts[1].includes('.')) {
-                    response.sendFile(distPath + '/index.html');
+        if (url === '/' || !url.length || !urlParts[1].includes('.')) {
+            response.sendFile(distPath + '/index.html');
 
-                    return;
-                }
+            return;
+        }
 
-                response.sendFile(distPath + `/${urlParts[1]}`);
+        response.sendFile(distPath + `/${urlParts[1]}`);
     }
 
 }

@@ -1,0 +1,85 @@
+body {
+    background: lightgray;
+}
+
+.formContainer {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid black;
+    width: 280px;
+    height: 550px;
+    padding: 20px 50px 20px 40px;
+    background: #001f3f;
+    font-family: sans-serif;
+}
+
+.formHeader {
+    padding-bottom: 30px;
+    text-align: center;
+    color: lightgray;
+    font-size: 20px;
+}
+
+.controlContainer {
+    margin-top: 10px;
+    height: 80px;
+}
+
+.controlName {
+    color: lightgray;
+    cursor: default;
+}
+
+.controlInput {
+    outline-width: 2px;
+    outline-color: aqua;
+    border-radius: 3px;
+    border-width: 1px;
+    border-color: rgb(187, 187, 187);
+    border-style: solid;
+    background: lightgray;
+    width: 100%;
+    height: 25px;
+    padding-left: 10px;
+    font-size: 14px;
+}
+
+.controlInputContainer {
+    margin-top: 10px;
+}
+
+.buttonContainer {
+    margin-top: 10px;
+}
+
+.submitButton {
+    outline-width: 2px;
+    outline-color: aqua;
+    border: none;
+    height: 30px;
+    width: 200px;
+    font-size: 16px;
+    background: rgb(0, 191, 97);
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.submitButton[disabled] {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.requiredControl::after {
+    content: '*';
+}
+
+.controlError {
+    margin-top: 3px;
+    color: red;
+    font-size: 12px;
+}
+
