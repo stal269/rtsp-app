@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
-import './registration.css';
 import { validate } from 'email-validator';
-import { withRouter, Redirect } from 'react-router-dom';
-import { Login } from '../login/login.cmp';
+import { Redirect } from 'react-router-dom';
 const axios = require('axios');
 
 export class Registration extends Component<any, any> {
@@ -161,6 +159,7 @@ export class Registration extends Component<any, any> {
         });
     }
 
+    //TODO: move validators to separate file
     private confirmPasswordChange(event: { target: HTMLInputElement }): void {
         this.state.confirmPassword.value = event.target.value;
         this.state.confirmPassword.isValid = (event.target.value === this.state.password.value);

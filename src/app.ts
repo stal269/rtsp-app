@@ -19,8 +19,7 @@ class App {
 
     private registerRoutes(): void {
         this.express
-            //todo: we probably need to ckeck the request.session object
-            // for internal app requests after login
+            //TODO: ckeck  request.session for internal app requests after login
             .use(cookieSession({
                 name: 'session',
                 keys: ['encrypt', 'decrypt'],
@@ -80,14 +79,22 @@ class App {
                             request.session = {
                                 username: request.body.email
                             }
+                            
+                            response.status(200);
 
-                            response.sendStatus(200);
+                            response.json({
+                                id: user.id
+                            });
 
                             return;
                         }
 
                         response.sendStatus(401);
                     });
+            })
+            //TODO: debug mongo hanging
+            .catch((error: Error) => {
+                console.log(error);
             });
     };
 

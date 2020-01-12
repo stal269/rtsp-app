@@ -1,4 +1,4 @@
-import {URL} from './url.model';
+//TODO: reorganise the model
 
 interface BaseUser {
     firstName: string;
@@ -7,10 +7,13 @@ interface BaseUser {
     password: string;
 }
 
-export interface User extends BaseUser {
-    urls?: URL[];
+export interface User {
+    password: string;
+    email: string;
+    id: string;
 }
 
 export interface DbUser extends BaseUser {
+    _id: string;
     urlIds?: string[];
 }

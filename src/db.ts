@@ -11,7 +11,7 @@ export class Dao {
     private client: MongoClient;
 
     constructor() {
-        this.client = new MongoClient(Dao.DB_URL);
+        this.client = new MongoClient(Dao.DB_URL, { useUnifiedTopology: true });
     }
 
     createUser(user: User): Promise<string> {
@@ -26,7 +26,14 @@ export class Dao {
             .then((db: Db) => {
                 const users: Collection = db.collection('users');
 
-                return users.findOne({ email });
+                return users.findOne({ email })
+                    .then((user: DbUser) => {
+                        return {
+                            id: user._id,
+                            email: user.email,
+                            password: user.password
+                        };
+                    });
             });
     }
 
@@ -63,7 +70,7 @@ export class Dao {
                     .then((user: DbUser) => {
                         return user.urlIds && user.urlIds.length ?
                             db.collection('urls')
-                                .find({_id: {$in: user.urlIds}})
+                                .find({ _id: { $in: user.urlIds } })
                                 .toArray() :
                             new Promise((resolve) => resolve([]));
                     })

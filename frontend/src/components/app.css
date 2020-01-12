@@ -53,7 +53,7 @@ body {
 }
 
 .buttonContainer {
-    margin-top: 10px;
+    margin-top: auto;
 }
 
 .submitButton {
@@ -82,4 +82,3 @@ body {
     color: red;
     font-size: 12px;
 }
-

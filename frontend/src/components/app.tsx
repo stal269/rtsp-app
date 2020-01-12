@@ -4,6 +4,7 @@ import { Registration } from './registration/registration.cmp';
 import { RtspGrid } from './rtsp-grid/rtsp-grid.cmp';
 import { Login } from './login/login.cmp';
 import { Home } from './home/home.cmp';
+import './app.css';
 
 export class App extends Component {
 
