@@ -7,10 +7,12 @@ import daoInstance, { Dao } from './db';
 import { hash, compare } from 'bcrypt';
 import { User } from './models/user.model';
 import { URL } from './models/url.model';
+const Stream = require('node-rtsp-stream');
 
 class App {
 
     public express: Express;
+    private stream: any;
 
     constructor(private dao: Dao) {
         this.express = express();
@@ -26,12 +28,12 @@ class App {
                 maxAge: 1000 * 60 * 30
             }))
             .use(bodyParser.json())
+            .put('/rtsp/stream', this.streamUrl.bind(this))
             .post('/rtsp/users',
                 this.encryptPassword.bind(this),
                 this.createUser.bind(this)
             )
             .post('/rtsp/users/login', this.loginUser.bind(this))
-            //consider putting next two under the same route
             .post('/rtsp/users/:id/urls', this.addUrlToUser.bind(this))
             .get('/rtsp/users/:id/urls', this.getUrlsByUserId.bind(this))
             .use('/**', this.handleStaticRequest.bind(this));
@@ -79,7 +81,7 @@ class App {
                             request.session = {
                                 username: request.body.email
                             }
-                            
+
                             response.status(200);
 
                             response.json({
@@ -126,6 +128,28 @@ class App {
         }
 
         response.sendFile(distPath + `/${urlParts[1]}`);
+    }
+
+    private streamUrl(request: Request, response: Response): void {
+        if (this.stream) {
+            console.log('stopping current stream');
+            this.stream.stop();
+        }
+
+        try {
+            this.stream = new Stream({
+                name: 'name',
+                streamUrl: request.body.url,
+                wsPort: 5000,
+                ffmpegOptions: {
+                    '-r': 30
+                }
+            });
+        } catch (error) {
+            console.log(error);
+        }
+
+        response.sendStatus(200);
     }
 
 }

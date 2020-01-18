@@ -159,7 +159,6 @@ export class Registration extends Component<any, any> {
         });
     }
 
-    //TODO: move validators to separate file
     private confirmPasswordChange(event: { target: HTMLInputElement }): void {
         this.state.confirmPassword.value = event.target.value;
         this.state.confirmPassword.isValid = (event.target.value === this.state.password.value);

@@ -1,8 +1,11 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-  entry: './src/main.tsx',
+  entry: {
+    main: './src/main.tsx'
+  },
   devtool: 'inline-source-map',
   mode: 'development',
   module: {
@@ -16,20 +19,24 @@ module.exports = {
         test: /\.css$/i,
         use: ['style-loader', 'css-loader']
       },
-    ],
+    ]
   },
   plugins: [
-      new HtmlWebpackPlugin(
-          {
-              template: 'index.html',
-              inject: 'body'
-          }
-      )],
+    new HtmlWebpackPlugin(
+      {
+        template: 'index.html',
+        inject: 'body'
+      }
+    ),
+    new CopyPlugin([
+      { from: './src/jsmpeg.min.js', to: './' }
+    ])
+  ],
   resolve: {
-    extensions: [ '.tsx', '.ts', '.js' ],
+    extensions: ['.tsx', '.ts', '.js'],
   },
   output: {
-    filename: 'bundle.js',
+    filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
   },
 };

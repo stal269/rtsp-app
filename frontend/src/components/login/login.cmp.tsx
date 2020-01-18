@@ -100,7 +100,6 @@ export class Login extends Component<any, any> {
                 });
             })
             .catch((error: Error) => {
-                //TODO: move under the password field
                 window.alert('password or email do not match');
             });
     }

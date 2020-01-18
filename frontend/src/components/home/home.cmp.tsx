@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
+import { rtspUrlRegex } from '../../utils/utils';
 const axios = require('axios');
 
 export class Home extends Component<any, any> {
-
-    //TODO: move this to external file
-    private urlRegex: RegExp = /(rtsp?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi; 
 
     constructor(props: any) {
         super(props);
@@ -88,14 +86,14 @@ export class Home extends Component<any, any> {
             });
         })
         .catch((error: Error) => {
-            //TODO: handle error
+            console.log('failed to add url');
         });
     }
 
     private handleUrlChange(event: { target: HTMLInputElement }): void {
         const value: string = event.target.value;
         this.state.url.value = value;
-        this.state.url.isValid = value.match(this.urlRegex);
+        this.state.url.isValid = value.match(rtspUrlRegex);
         this.setState(this.state);
     }
 

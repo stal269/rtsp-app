@@ -1,5 +1,3 @@
-//TODO: reorganise the model
-
 interface BaseUser {
     firstName: string;
     lastName: string;
@@ -7,9 +5,7 @@ interface BaseUser {
     password: string;
 }
 
-export interface User {
-    password: string;
-    email: string;
+export interface User extends BaseUser {
     id: string;
 }
 

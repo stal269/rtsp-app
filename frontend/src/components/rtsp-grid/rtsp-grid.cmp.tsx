@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router';
-import './rtsp-grid.css';
 import { IURL } from '../../models/url.model';
+import './rtsp-grid.css';
 const axios = require('axios');
-var jsmpeg = require('jsmpeg');
+declare let JSMpeg: any;
 
 export class RtspGrid extends Component<any, any> {
 
@@ -13,22 +13,14 @@ export class RtspGrid extends Component<any, any> {
         super(props);
 
         this.state = {
-            urls: []
+            urls: [],
+            urlSelected: false
         };
     }
 
     componentDidMount(): void {
-        if (!this.props.location.state) {
-            this.setState({
-                ...this.state,
-                redirect: {
-                    pathname: '/login',    
-                }
-            });
-        }
-
+        this.checkStateAndRedirect();
         this.loadUrls();
-        this.loadJsMpegPlayer();
     }
 
     render() {
@@ -46,19 +38,33 @@ export class RtspGrid extends Component<any, any> {
                 </div>
 
                 <div className="playerContainer">
-                    <canvas id="videoCanvas" width="550" height="550">
-                    </canvas>
+                    <canvas id="videoCanvas" width="550" height="550"></canvas>
+                    {
+                        !this.state.urlSelected ?
+                            <div className="playerPlaceholder" >
+                                Select RTSP URL
+                            </div> : ''
+                    }
                 </div>
-
             </div>
         );
     }
 
-    //TODO: add elipsis
+    private checkStateAndRedirect(): void {
+        if (!this.props.location.state) {
+            this.setState({
+                ...this.state,
+                redirect: {
+                    pathname: '/login',
+                }
+            });
+        }
+    }
+
     private renderUrlItem(urlItem: IURL) {
         return (
-            <li className="urlItem" key={urlItem.id} onClick={this.streamUrl.bind(this)}>
-                <div className="urlTitle" >{urlItem.url}</div>
+            <li className="urlItem" key={urlItem.id} onClick={this.streamUrl.bind(this, urlItem.url)}>
+                <div className="urlTitle" title={urlItem.url}>{urlItem.url}</div>
             </li>
         );
     }
@@ -77,24 +83,24 @@ export class RtspGrid extends Component<any, any> {
             });
     }
 
-    private streamUrl(): void {
-        axios.put(`/rtsp/stream`, {
-            url: 'rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov'
-        })
+    private streamUrl(url: string): void {
+        axios.put(`/rtsp/stream`, { url })
             .then((response: any) => {
-                
+                this.loadJsMpegPlayer();
+                this.setState({
+                    ...this.state,
+                    urlSelected: true
+                });
             })
             .catch((error: Error) => {
-                console.log('error')
+                console.log(error);
             });
     }
 
     private loadJsMpegPlayer(): void {
         const hostname: string = window.location.hostname;
-        const port: string = window.location.port;
-        const client = new WebSocket(`ws://${hostname}:${port}/`);
         const canvas: HTMLCanvasElement = document.getElementById('videoCanvas') as HTMLCanvasElement;
-        this.player = new jsmpeg(client, { canvas });
+        this.player = new JSMpeg.Player(`ws://${hostname}:5000/`, { canvas, });
         this.player.play();
     }
 
