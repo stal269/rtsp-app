@@ -38,7 +38,7 @@ export class RtspGrid extends Component<any, any> {
                 </div>
 
                 <div className="playerContainer">
-                    <canvas id="videoCanvas" width="550" height="550"></canvas>
+                    <canvas id="videoCanvas" width="700" height="550"></canvas>
                     {
                         !this.state.urlSelected ?
                             <div className="playerPlaceholder" >
@@ -70,6 +70,10 @@ export class RtspGrid extends Component<any, any> {
     }
 
     private loadUrls(): void {
+        if (!this.props.location.state) {
+            return;
+        }
+
         const id: string = this.props.location.state.id;
 
         axios.get(`/rtsp/users/${id}/urls`)
@@ -84,6 +88,10 @@ export class RtspGrid extends Component<any, any> {
     }
 
     private streamUrl(url: string): void {
+        if (this.player) {
+            this.player.source.destroy();
+        }
+        
         axios.put(`/rtsp/stream`, { url })
             .then((response: any) => {
                 this.loadJsMpegPlayer();

@@ -7,12 +7,14 @@ import daoInstance, { Dao } from './db';
 import { hash, compare } from 'bcrypt';
 import { User } from './models/user.model';
 import { URL } from './models/url.model';
+import { setInterval } from 'timers';
 const Stream = require('node-rtsp-stream');
 
 class App {
 
     public express: Express;
     private stream: any;
+    private intervalId: any;
 
     constructor(private dao: Dao) {
         this.express = express();
@@ -42,7 +44,6 @@ class App {
     private createUser(request: Request, response: Response): void {
         this.dao.createUser(request.body)
             .then((id: string) => {
-                console.log(`user with id: ${id} created`)
                 response.status(200)
                     .json({ id });
             })
@@ -94,7 +95,6 @@ class App {
                         response.sendStatus(401);
                     });
             })
-            //TODO: debug mongo hanging
             .catch((error: Error) => {
                 console.log(error);
             });
@@ -132,24 +132,42 @@ class App {
 
     private streamUrl(request: Request, response: Response): void {
         if (this.stream) {
-            console.log('stopping current stream');
             this.stream.stop();
         }
 
         try {
-            this.stream = new Stream({
-                name: 'name',
-                streamUrl: request.body.url,
-                wsPort: 5000,
-                ffmpegOptions: {
-                    '-r': 30
-                }
-            });
+            this.initStream(request.body.url);
+            this.registerZeroClientsCheck();
         } catch (error) {
             console.log(error);
         }
 
         response.sendStatus(200);
+    }
+
+    private initStream(url: string) {
+        this.stream = new Stream({
+            name: 'rtsp-stream',
+            streamUrl: url,
+            wsPort: 5000,
+            ffmpegOptions: {
+                '-r': 30
+            }
+        });
+    }
+
+    private registerZeroClientsCheck(): void {
+        if (this.intervalId) {
+            return;
+        }
+
+        this.intervalId = setInterval(() => {
+            if (this.stream && !this.stream.wsServer.clients.size) {
+                this.stream.stop();
+                clearInterval(this.intervalId);
+                this.intervalId = null;
+            }
+        }, 2000);
     }
 
 }

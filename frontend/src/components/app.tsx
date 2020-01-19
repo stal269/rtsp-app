@@ -7,7 +7,6 @@ import { Home } from './home/home.cmp';
 import './app.css';
 
 export class App extends Component {
-
     render() {
         return (
             <Router>

@@ -18,19 +18,12 @@ export class Home extends Component<any, any> {
     }
 
     componentDidMount(): void {
-        if (!this.props.location.state) {
-            this.setState({
-                ...this.state,
-                redirect: {
-                    pathname: '/login',    
-                }
-            });
-        }
+        this.checkStateAndRedirect();
     }
 
     render() {
         if (this.state.redirect) {
-            return (<Redirect to={this.state.redirect} push={true}/>)
+            return (<Redirect to={this.state.redirect} push={true} />)
         }
 
         return (
@@ -56,11 +49,11 @@ export class Home extends Component<any, any> {
                 </div>
 
                 <div className="buttonContainer">
-                    <button 
-                        className="submitButton" 
+                    <button
+                        className="submitButton"
                         disabled={!this.isSubmitEnabled()}
                         onClick={this.onSubmit.bind(this)}
-                        >
+                    >
                         Add
                     </button>
                 </div>
@@ -74,20 +67,20 @@ export class Home extends Component<any, any> {
         axios.post(`/rtsp/users/${id}/urls`, {
             url: this.state.url.value
         })
-        .then(() => {
-            this.setState({
-                ...this.state,
-                redirect: {
-                    pathname: '/grid',
-                    state: {
-                        id
+            .then(() => {
+                this.setState({
+                    ...this.state,
+                    redirect: {
+                        pathname: '/grid',
+                        state: {
+                            id
+                        }
                     }
-                }
+                });
+            })
+            .catch((error: Error) => {
+                console.log('failed to add url');
             });
-        })
-        .catch((error: Error) => {
-            console.log('failed to add url');
-        });
     }
 
     private handleUrlChange(event: { target: HTMLInputElement }): void {
@@ -108,10 +101,21 @@ export class Home extends Component<any, any> {
 
     private isError(field: string): boolean {
         return !this.state[field].isValid && this.state[field].isVisited;
-    }
+    }   
 
     private isSubmitEnabled(): boolean {
         return this.state.url.isValid
+    }
+
+    private checkStateAndRedirect(): void {
+        if (!this.props.location.state) {
+            this.setState({
+                ...this.state,
+                redirect: {
+                    pathname: '/login',
+                }
+            });
+        }
     }
 
 }
