@@ -14,3 +14,5 @@
 .vscode/
 
 npm-debug.log*
+
+/data

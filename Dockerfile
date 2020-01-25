@@ -1,6 +1,8 @@
 FROM node:12.14
 
 WORKDIR /usr/src/rtsp-app
+RUN apt-get update && \
+    apt-get install -y ffmpeg
 COPY package*.json ./
 RUN npm install 
 COPY . .

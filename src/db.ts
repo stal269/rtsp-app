@@ -5,14 +5,14 @@ import { MongoClient, Collection, Db, MongoError, InsertOneWriteOpResult, Object
 
 export class Dao {
 
-    private static readonly DB_URL: string = 'mongodb://localhost:27017';
+    private static readonly DB_URL: string = 'mongodb://mongo:27017';
+    //private static readonly DB_URL: string = 'mongodb://localhost:27017';
     private static readonly dbName: string = 'rtsp_db';
 
     private client: MongoClient;
     private db: Db;
 
     constructor() {
-        this.client = new MongoClient(Dao.DB_URL);
         this.connect();
     }
 
@@ -78,17 +78,22 @@ export class Dao {
             });
     }
 
-    private connect(): Promise<Db> {
-        return this.client.connect()
-            .then(() => {
-                this.db = this.client.db(Dao.dbName);
-            })
-            .catch((err: MongoError) => {
-                console.log('error connecting to the db');
-                console.log(err);
+    private connect(): void {
+        let intervalId;
+        this.client = new MongoClient(Dao.DB_URL);
 
-                return null;
-            });
+        intervalId = setInterval(() => {
+            this.client.connect()
+                .then(() => {
+                    clearInterval(intervalId);
+                    this.db = this.client.db(Dao.dbName);
+                })
+                .catch((err: MongoError) => {
+                    console.log('error connecting to the db');
+                    console.log(err);
+                });
+        }, 5000);
+
     }
 
     private getExistingUsers(): Promise<User[]> {
@@ -108,7 +113,6 @@ export class Dao {
     }
 
     private insertUser(user: User): Promise<string> {
-        const db: Db = this.client.db(Dao.dbName);
         const users: Collection = this.db.collection('users');
 
         return users.insertOne(user)
