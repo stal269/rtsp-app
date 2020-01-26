@@ -19,6 +19,7 @@ class App {
     constructor(private dao: Dao) {
         this.express = express();
         this.registerRoutes();
+        this.registerErrorGuards();
     }
 
     private registerRoutes(): void {
@@ -185,6 +186,14 @@ class App {
                 this.intervalId = null;
             }
         }, 2000);
+
+    }
+
+    //being used against errors thrown asynchronously from the rtsp lib
+    registerErrorGuards() {
+        process.on('uncaughtException', (err) => {
+            console.log(err);
+        });
     }
 
 }
