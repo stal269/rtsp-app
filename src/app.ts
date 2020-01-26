@@ -23,7 +23,6 @@ class App {
 
     private registerRoutes(): void {
         this.express
-            //TODO: ckeck  request.session for internal app requests after login
             .use(cookieSession({
                 name: 'session',
                 keys: ['encrypt', 'decrypt'],
@@ -101,6 +100,12 @@ class App {
     };
 
     private addUrlToUser(request: Request, response: Response): void {
+        if (!request.session.populated) {
+            response.sendStatus(403);
+
+            return;
+        }
+
         this.dao.setUrlForUser(request.params.id, request.body.url)
             .then((urlId: string) => {
                 response.status(200)
@@ -109,6 +114,12 @@ class App {
     }
 
     private getUrlsByUserId(request: Request, response: Response): void {
+        if (!request.session.populated) {
+            response.sendStatus(403);
+
+            return;
+        }
+
         this.dao.getUrlsByUserId(request.params.id)
             .then((urls: URL[]) => {
                 response.status(200)
@@ -131,6 +142,12 @@ class App {
     }
 
     private streamUrl(request: Request, response: Response): void {
+        if (!request.session.populated) {
+            response.sendStatus(403);
+
+            return;
+        }
+
         if (this.stream) {
             this.stream.stop();
         }
